@@ -14,7 +14,7 @@ export class FacebookTrigger implements INodeType {
         icon: 'file:facebook-messenger-logo.png',
         group: ['trigger'],
         version: 1,
-        description: 'Receive Facebook webhook events and handle verification',
+        description: 'Facebook Page & Messenger toolkit: Real-time event triggers, AI-ready moderation, interactive messaging, and high-scale media distribution.\n\n Made With 💖 By Imran Hossain',
         defaults: {
             name: 'Facebook Trigger',
         },

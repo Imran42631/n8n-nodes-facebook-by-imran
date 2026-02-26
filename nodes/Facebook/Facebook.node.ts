@@ -15,7 +15,7 @@ export class Facebook implements INodeType {
         icon: 'file:facebook-messenger-logo.png',
         group: ['transform'],
         version: 1,
-        description: 'Send messages and manage interactions via Facebook Messenger',
+        description: 'Facebook Page & Messenger toolkit: Real-time event triggers, AI-ready moderation, interactive messaging, and high-scale media distribution.\n\n Made With 💖 By Imran Hossain',
         defaults: {
             name: 'Facebook',
         },
