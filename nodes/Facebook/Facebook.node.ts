@@ -267,6 +267,24 @@ export class Facebook implements INodeType {
                         description: 'Remove a like from a specific comment',
                         action: 'Remove like from a comment',
                     },
+                    {
+                        name: 'Hide a Comment',
+                        value: 'hide',
+                        description: 'Hide a specific comment on your page',
+                        action: 'Hide a comment',
+                    },
+                    {
+                        name: 'Unhide a Comment',
+                        value: 'unhide',
+                        description: 'Unhide a previously hidden comment',
+                        action: 'Unhide a comment',
+                    },
+                    {
+                        name: 'Delete a Comment',
+                        value: 'delete',
+                        description: 'Permanently delete a comment',
+                        action: 'Delete a comment',
+                    },
                 ],
                 default: 'reply',
             },
@@ -283,19 +301,25 @@ export class Facebook implements INodeType {
                 },
                 options: [
                     {
-                        name: 'Ban a User From Page',
-                        value: 'ban',
-                        description: 'Ban a specific user from your Facebook Page',
-                        action: 'Ban a user from page',
+                        name: 'Post to a Page Feed',
+                        value: 'postToFeed',
+                        description: 'Post a status update to the page feed',
+                        action: 'Post to a page feed',
                     },
                     {
-                        name: 'Unblock a User From Page',
-                        value: 'unblock',
-                        description: 'Unblock a previously banned user from your Facebook Page',
-                        action: 'Unblock a user from page',
+                        name: 'Post to a Page Feed with Link',
+                        value: 'postToFeedLink',
+                        description: 'Post a message with a link to the page feed',
+                        action: 'Post to a page feed with link',
+                    },
+                    {
+                        name: 'Post to a Page Feed With Image',
+                        value: 'postPhoto',
+                        description: 'Upload a photo with a caption to the page',
+                        action: 'Post to a page feed with image',
                     },
                 ],
-                default: 'ban',
+                default: 'postToFeed',
             },
             {
                 displayName: 'Comment ID',
@@ -305,7 +329,7 @@ export class Facebook implements INodeType {
                 displayOptions: {
                     show: {
                         resource: ['comment'],
-                        operation: ['reply', 'privateReply', 'replyWithImage', 'replyWithSticker', 'react', 'like', 'unlike'],
+                        operation: ['reply', 'privateReply', 'replyWithImage', 'replyWithSticker', 'react', 'like', 'unlike', 'hide', 'unhide', 'delete'],
                     },
                 },
                 default: '',
@@ -335,20 +359,6 @@ export class Facebook implements INodeType {
                 description: 'Choose the reaction type to add',
             },
             {
-                displayName: 'User ID',
-                name: 'userId',
-                type: 'string',
-                required: true,
-                displayOptions: {
-                    show: {
-                        resource: ['page'],
-                        operation: ['ban', 'unblock'],
-                    },
-                },
-                default: '',
-                description: 'The Page Scoped ID (PSID) of the user to ban or unblock',
-            },
-            {
                 displayName: 'Page ID',
                 name: 'pageId',
                 type: 'string',
@@ -356,11 +366,65 @@ export class Facebook implements INodeType {
                 displayOptions: {
                     show: {
                         resource: ['page'],
-                        operation: ['ban', 'unblock'],
                     },
                 },
                 default: '',
-                description: 'The ID of your Facebook Page',
+                description: 'The ID of the Facebook Page',
+            },
+            {
+                displayName: 'Message',
+                name: 'message',
+                type: 'string',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['page'],
+                        operation: ['postToFeed', 'postToFeedLink'],
+                    },
+                },
+                default: '',
+                description: 'The message to post to the feed',
+            },
+            {
+                displayName: 'Link URL',
+                name: 'linkUrl',
+                type: 'string',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['page'],
+                        operation: ['postToFeedLink'],
+                    },
+                },
+                default: '',
+                description: 'The URL to include in the post',
+            },
+            {
+                displayName: 'Photo URL',
+                name: 'photoUrl',
+                type: 'string',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['page'],
+                        operation: ['postPhoto'],
+                    },
+                },
+                default: '',
+                description: 'The public URL of the photo to upload',
+            },
+            {
+                displayName: 'Caption',
+                name: 'photoCaption',
+                type: 'string',
+                displayOptions: {
+                    show: {
+                        resource: ['page'],
+                        operation: ['postPhoto'],
+                    },
+                },
+                default: '',
+                description: 'The caption for the photo',
             },
             {
                 displayName: '⚠️ **Note**: This operation requires **Business Verification** and the **pages_manage_engagement** permission to function.',
@@ -944,34 +1008,96 @@ export class Facebook implements INodeType {
 
                         const responseData = await this.helpers.httpRequest(options);
                         returnData.push({ json: responseData });
-                    }
-                } else if (resource === 'page') {
-                    if (operation === 'ban') {
-                        const pageId = this.getNodeParameter('pageId', i) as string;
-                        const userId = this.getNodeParameter('userId', i) as string;
+                    } else if (operation === 'hide') {
+                        const commentId = this.getNodeParameter('commentId', i) as string;
 
                         const options: any = {
                             method: 'POST' as IHttpRequestMethods,
-                            url: `https://graph.facebook.com/v21.0/${pageId}/blocked`,
+                            url: `https://graph.facebook.com/v21.0/${commentId}`,
                             qs: { access_token: accessToken },
                             body: {
-                                user: userId,
+                                is_hidden: true,
                             },
                             json: true,
                         };
 
                         const responseData = await this.helpers.httpRequest(options);
                         returnData.push({ json: responseData });
-                    } else if (operation === 'unblock') {
-                        const pageId = this.getNodeParameter('pageId', i) as string;
-                        const userId = this.getNodeParameter('userId', i) as string;
+                    } else if (operation === 'unhide') {
+                        const commentId = this.getNodeParameter('commentId', i) as string;
+
+                        const options: any = {
+                            method: 'POST' as IHttpRequestMethods,
+                            url: `https://graph.facebook.com/v21.0/${commentId}`,
+                            qs: { access_token: accessToken },
+                            body: {
+                                is_hidden: false,
+                            },
+                            json: true,
+                        };
+
+                        const responseData = await this.helpers.httpRequest(options);
+                        returnData.push({ json: responseData });
+                    } else if (operation === 'delete') {
+                        const commentId = this.getNodeParameter('commentId', i) as string;
 
                         const options: any = {
                             method: 'DELETE' as IHttpRequestMethods,
-                            url: `https://graph.facebook.com/v21.0/${pageId}/blocked`,
-                            qs: {
-                                access_token: accessToken,
-                                user: userId,
+                            url: `https://graph.facebook.com/v21.0/${commentId}`,
+                            qs: { access_token: accessToken },
+                            json: true,
+                        };
+
+                        const responseData = await this.helpers.httpRequest(options);
+                        returnData.push({ json: responseData });
+                    }
+                } else if (resource === 'page') {
+                    if (operation === 'postToFeed') {
+                        const pageId = this.getNodeParameter('pageId', i) as string;
+                        const message = this.getNodeParameter('message', i) as string;
+
+                        const options: any = {
+                            method: 'POST' as IHttpRequestMethods,
+                            url: `https://graph.facebook.com/v21.0/${pageId}/feed`,
+                            qs: { access_token: accessToken },
+                            body: {
+                                message,
+                            },
+                            json: true,
+                        };
+
+                        const responseData = await this.helpers.httpRequest(options);
+                        returnData.push({ json: responseData });
+                    } else if (operation === 'postToFeedLink') {
+                        const pageId = this.getNodeParameter('pageId', i) as string;
+                        const message = this.getNodeParameter('message', i) as string;
+                        const link = this.getNodeParameter('linkUrl', i) as string;
+
+                        const options: any = {
+                            method: 'POST' as IHttpRequestMethods,
+                            url: `https://graph.facebook.com/v21.0/${pageId}/feed`,
+                            qs: { access_token: accessToken },
+                            body: {
+                                message,
+                                link,
+                            },
+                            json: true,
+                        };
+
+                        const responseData = await this.helpers.httpRequest(options);
+                        returnData.push({ json: responseData });
+                    } else if (operation === 'postPhoto') {
+                        const pageId = this.getNodeParameter('pageId', i) as string;
+                        const url = this.getNodeParameter('photoUrl', i) as string;
+                        const caption = this.getNodeParameter('photoCaption', i) as string;
+
+                        const options: any = {
+                            method: 'POST' as IHttpRequestMethods,
+                            url: `https://graph.facebook.com/v21.0/${pageId}/photos`,
+                            qs: { access_token: accessToken },
+                            body: {
+                                url,
+                                caption,
                             },
                             json: true,
                         };
