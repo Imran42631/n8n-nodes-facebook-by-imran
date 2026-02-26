@@ -796,7 +796,8 @@ export class Facebook implements INodeType {
                             url: `https://graph.facebook.com/v21.0/me/messages`,
                             qs: { access_token: accessToken },
                             body: {
-                                recipient: { id: recipientId },
+                                recipient: { id: recipientId.trim() },
+                                messaging_type: 'RESPONSE',
                                 message: { text },
                             },
                             json: true,
@@ -805,7 +806,7 @@ export class Facebook implements INodeType {
                         const responseData = await this.helpers.httpRequest(options);
                         returnData.push({ json: responseData });
                     } else if (operation === 'sendQuickReply') {
-                        const recipientId = this.getNodeParameter('recipientId', i) as string;
+                        const recipientId = (this.getNodeParameter('recipientId', i) as string).trim();
                         const text = this.getNodeParameter('questionText', i) as string;
                         const quickRepliesData = this.getNodeParameter('quickReplies', i) as any;
 
@@ -878,7 +879,8 @@ export class Facebook implements INodeType {
                         url: `https://graph.facebook.com/v21.0/me/messages`,
                         qs: { access_token: accessToken },
                         body: {
-                            recipient: { id: recipientId },
+                            recipient: { id: recipientId.trim() },
+                            messaging_type: 'RESPONSE',
                             message: {
                                 attachments,
                             },
@@ -906,7 +908,8 @@ export class Facebook implements INodeType {
                             else if (resource === 'video') fileUrl = this.getNodeParameter('videoUrl', i) as string;
 
                             options.body = {
-                                recipient: { id: recipientId },
+                                recipient: { id: recipientId.trim() },
+                                messaging_type: 'RESPONSE',
                                 message: {
                                     attachment: {
                                         type,
@@ -921,7 +924,8 @@ export class Facebook implements INodeType {
                         } else if (sendMethod === 'attachmentId') {
                             const attachmentId = this.getNodeParameter('attachmentId', i) as string;
                             options.body = {
-                                recipient: { id: recipientId },
+                                recipient: { id: recipientId.trim() },
+                                messaging_type: 'RESPONSE',
                                 message: {
                                     attachment: {
                                         type,
@@ -945,7 +949,8 @@ export class Facebook implements INodeType {
                             }
 
                             options.formData = {
-                                recipient: JSON.stringify({ id: recipientId }),
+                                recipient: JSON.stringify({ id: recipientId.trim() }),
+                                messaging_type: 'RESPONSE',
                                 message: JSON.stringify({
                                     attachment: {
                                         type,
