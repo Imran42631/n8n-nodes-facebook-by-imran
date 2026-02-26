@@ -238,6 +238,24 @@ export class Facebook implements INodeType {
                         action: 'Reply to a comment',
                     },
                     {
+                        name: 'Delete a Comment',
+                        value: 'delete',
+                        description: 'Permanently delete a comment',
+                        action: 'Delete a comment',
+                    },
+                    {
+                        name: 'Hide a Comment',
+                        value: 'hide',
+                        description: 'Hide a specific comment on your page',
+                        action: 'Hide a comment',
+                    },
+                    {
+                        name: 'Unhide a Comment',
+                        value: 'unhide',
+                        description: 'Unhide a previously hidden comment',
+                        action: 'Unhide a comment',
+                    },
+                    {
                         name: 'Send a Private Reply',
                         value: 'privateReply',
                         description: 'Send a private message in response to a comment',
@@ -272,24 +290,6 @@ export class Facebook implements INodeType {
                         value: 'unlike',
                         description: 'Remove a like from a specific comment',
                         action: 'Remove like from a comment',
-                    },
-                    {
-                        name: 'Hide a Comment',
-                        value: 'hide',
-                        description: 'Hide a specific comment on your page',
-                        action: 'Hide a comment',
-                    },
-                    {
-                        name: 'Unhide a Comment',
-                        value: 'unhide',
-                        description: 'Unhide a previously hidden comment',
-                        action: 'Unhide a comment',
-                    },
-                    {
-                        name: 'Delete a Comment',
-                        value: 'delete',
-                        description: 'Permanently delete a comment',
-                        action: 'Delete a comment',
                     },
                 ],
                 default: 'reply',
@@ -598,7 +598,7 @@ export class Facebook implements INodeType {
                                 description: 'The value to send back when the button is clicked',
                             },
                             {
-                                displayName: 'Image URL',
+                                displayName: 'Image URL (Optional)',
                                 name: 'imageUrl',
                                 type: 'string',
                                 default: '',
