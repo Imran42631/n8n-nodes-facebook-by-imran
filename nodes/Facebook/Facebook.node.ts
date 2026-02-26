@@ -62,6 +62,10 @@ export class Facebook implements INodeType {
                         name: 'Comment',
                         value: 'comment',
                     },
+                    {
+                        name: 'Page',
+                        value: 'page',
+                    },
                 ],
                 default: 'message',
             },
@@ -266,6 +270,33 @@ export class Facebook implements INodeType {
                 ],
                 default: 'reply',
             },
+            // Page Operations
+            {
+                displayName: 'Operation',
+                name: 'operation',
+                type: 'options',
+                noDataExpression: true,
+                displayOptions: {
+                    show: {
+                        resource: ['page'],
+                    },
+                },
+                options: [
+                    {
+                        name: 'Ban a User From Page',
+                        value: 'ban',
+                        description: 'Ban a specific user from your Facebook Page',
+                        action: 'Ban a user from page',
+                    },
+                    {
+                        name: 'Unblock a User From Page',
+                        value: 'unblock',
+                        description: 'Unblock a previously banned user from your Facebook Page',
+                        action: 'Unblock a user from page',
+                    },
+                ],
+                default: 'ban',
+            },
             {
                 displayName: 'Comment ID',
                 name: 'commentId',
@@ -302,6 +333,34 @@ export class Facebook implements INodeType {
                 ],
                 default: 'LIKE',
                 description: 'Choose the reaction type to add',
+            },
+            {
+                displayName: 'User ID',
+                name: 'userId',
+                type: 'string',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['page'],
+                        operation: ['ban', 'unblock'],
+                    },
+                },
+                default: '',
+                description: 'The Page Scoped ID (PSID) of the user to ban or unblock',
+            },
+            {
+                displayName: 'Page ID',
+                name: 'pageId',
+                type: 'string',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['page'],
+                        operation: ['ban', 'unblock'],
+                    },
+                },
+                default: '',
+                description: 'The ID of your Facebook Page',
             },
             {
                 displayName: '⚠️ **Note**: This operation requires **Business Verification** and the **pages_manage_engagement** permission to function.',
@@ -880,6 +939,40 @@ export class Facebook implements INodeType {
                             method: 'DELETE' as IHttpRequestMethods,
                             url: `https://graph.facebook.com/v21.0/${commentId}/likes`,
                             qs: { access_token: accessToken },
+                            json: true,
+                        };
+
+                        const responseData = await this.helpers.httpRequest(options);
+                        returnData.push({ json: responseData });
+                    }
+                } else if (resource === 'page') {
+                    if (operation === 'ban') {
+                        const pageId = this.getNodeParameter('pageId', i) as string;
+                        const userId = this.getNodeParameter('userId', i) as string;
+
+                        const options: any = {
+                            method: 'POST' as IHttpRequestMethods,
+                            url: `https://graph.facebook.com/v21.0/${pageId}/blocked`,
+                            qs: { access_token: accessToken },
+                            body: {
+                                user: userId,
+                            },
+                            json: true,
+                        };
+
+                        const responseData = await this.helpers.httpRequest(options);
+                        returnData.push({ json: responseData });
+                    } else if (operation === 'unblock') {
+                        const pageId = this.getNodeParameter('pageId', i) as string;
+                        const userId = this.getNodeParameter('userId', i) as string;
+
+                        const options: any = {
+                            method: 'DELETE' as IHttpRequestMethods,
+                            url: `https://graph.facebook.com/v21.0/${pageId}/blocked`,
+                            qs: {
+                                access_token: accessToken,
+                                user: userId,
+                            },
                             json: true,
                         };
 
