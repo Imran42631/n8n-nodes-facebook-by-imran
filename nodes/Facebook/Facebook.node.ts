@@ -87,6 +87,12 @@ export class Facebook implements INodeType {
                         description: 'Send a text message',
                         action: 'Send a text message',
                     },
+                    {
+                        name: 'Send Question with Buttons',
+                        value: 'sendQuickReply',
+                        description: 'Send a message with quick reply buttons',
+                        action: 'Send a message with buttons',
+                    },
                 ],
                 default: 'send',
             },
@@ -487,7 +493,7 @@ export class Facebook implements INodeType {
                 required: true,
                 displayOptions: {
                     show: {
-                        operation: ['send', 'sendMulti', 'markSeen', 'typingOn', 'typingOff', 'get'],
+                        operation: ['send', 'sendMulti', 'markSeen', 'typingOn', 'typingOff', 'get', 'sendQuickReply'],
                     },
                 },
                 default: '',
@@ -542,6 +548,78 @@ export class Facebook implements INodeType {
                 },
                 default: '',
                 description: 'The text message to send',
+            },
+            {
+                displayName: 'Question',
+                name: 'questionText',
+                type: 'string',
+                required: true,
+                displayOptions: {
+                    show: {
+                        resource: ['message'],
+                        operation: ['sendQuickReply'],
+                    },
+                },
+                default: '',
+                description: 'The question to ask the user',
+            },
+            {
+                displayName: 'Quick Replies',
+                name: 'quickReplies',
+                type: 'fixedCollection',
+                typeOptions: {
+                    multipleValues: true,
+                },
+                displayOptions: {
+                    show: {
+                        resource: ['message'],
+                        operation: ['sendQuickReply'],
+                    },
+                },
+                placeholder: 'Add Quick Reply',
+                default: {},
+                options: [
+                    {
+                        name: 'replies',
+                        displayName: 'Replies',
+                        values: [
+                            {
+                                displayName: 'Title',
+                                name: 'title',
+                                type: 'string',
+                                default: '',
+                                description: 'The text to show on the button',
+                            },
+                            {
+                                displayName: 'Payload',
+                                name: 'payload',
+                                type: 'string',
+                                default: '',
+                                description: 'The value to send back when the button is clicked',
+                            },
+                            {
+                                displayName: 'Image URL',
+                                name: 'imageUrl',
+                                type: 'string',
+                                default: '',
+                                description: 'Optional image to show next to the button text',
+                            },
+                        ],
+                    },
+                ],
+                description: 'Add up to 13 quick reply buttons',
+            },
+            {
+                displayName: '⚠️ **Note**: You can add a maximum of **13 buttons** for quick replies.',
+                name: 'quickReplyNotice',
+                type: 'notice',
+                displayOptions: {
+                    show: {
+                        resource: ['message'],
+                        operation: ['sendQuickReply'],
+                    },
+                },
+                default: '',
             },
             // Multi Image Sender Params
             {
@@ -720,6 +798,40 @@ export class Facebook implements INodeType {
                             body: {
                                 recipient: { id: recipientId },
                                 message: { text },
+                            },
+                            json: true,
+                        };
+
+                        const responseData = await this.helpers.httpRequest(options);
+                        returnData.push({ json: responseData });
+                    } else if (operation === 'sendQuickReply') {
+                        const recipientId = this.getNodeParameter('recipientId', i) as string;
+                        const text = this.getNodeParameter('questionText', i) as string;
+                        const quickRepliesData = this.getNodeParameter('quickReplies', i) as any;
+
+                        const quick_replies = (quickRepliesData?.replies || []).slice(0, 13).map((reply: any) => {
+                            const item: any = {
+                                content_type: 'text',
+                                title: reply.title,
+                                payload: reply.payload,
+                            };
+                            if (reply.imageUrl) {
+                                item.image_url = reply.imageUrl;
+                            }
+                            return item;
+                        });
+
+                        const options: any = {
+                            method: 'POST' as IHttpRequestMethods,
+                            url: `https://graph.facebook.com/v21.0/me/messages`,
+                            qs: { access_token: accessToken },
+                            body: {
+                                recipient: { id: recipientId },
+                                messaging_type: 'RESPONSE',
+                                message: {
+                                    text,
+                                    quick_replies,
+                                },
                             },
                             json: true,
                         };
