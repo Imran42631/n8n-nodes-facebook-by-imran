@@ -1,5 +1,6 @@
 import {
     ICredentialType,
+    ICredentialTestRequest,
     INodeProperties,
 } from 'n8n-workflow';
 
@@ -28,4 +29,14 @@ export class FacebookPageApi implements ICredentialType {
             description: 'The ID of your Facebook Page (Optional)',
         },
     ];
+
+    test: ICredentialTestRequest = {
+        request: {
+            baseURL: 'https://graph.facebook.com/v21.0',
+            url: '/me',
+            qs: {
+                access_token: '={{$credentials.accessToken}}',
+            },
+        },
+    };
 }
