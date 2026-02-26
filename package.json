@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-facebook-by-imran",
-  "version": "1.2.0",
-  "description": "Advanced Facebook Messenger node for n8n with support for Images, Audio, Video, Multi-image sending and User Profiles.",
+  "version": "1.3.0",
+  "description": "Professional Facebook and Messenger node for n8n. Supports Comment Moderation, Page Feed Posting, Image/Audio/Video messaging, Multi-image galleries, and Interactive Buttons.",
   "keywords": [
     "n8n-community-node-package",
     "facebook",
@@ -80,7 +80,17 @@
     "facebook message auto",
     "meta message api",
     "facebook chatbot n8n",
-    "messenger chatbot n8n"
+    "messenger chatbot n8n",
+    "facebook-comment-moderation",
+    "hide-facebook-comment",
+    "delete-facebook-comment",
+    "post-to-facebook-page",
+    "share-link-facebook",
+    "facebook-feed-api",
+    "messenger-buttons",
+    "quick-replies",
+    "facebook-marketing-automation",
+    "social-media-manager"
   ],
   "author": {
     "name": "Imran",
